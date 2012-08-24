@@ -58,8 +58,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 
 > tests :: [[Test]]
 > tests = [
->   --  appendTests
->   --, concatTests
+>     appendTests
+>   , concatTests
 >   --, mapTests
 >   --, concatMapTests
 >   --, filterTests
@@ -74,7 +74,7 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   --, zip3Tests
 >   --, zipWithTests
 >   --, zipWith3Tests
->   --, unlinesTests
+>   --, unlinesTests --------
 >   --, unwordsTests
 >   --, lastTests
 >   --, initTests
@@ -82,7 +82,7 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   --, dropTests
 >   --, takeWhileTests
 >   --, dropWhileTests
->   --, indexTests
+>   , indexTests
 >   --, sumTests
 >   --, productTests
 >   --, maximumTests
@@ -128,7 +128,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 1. [(++)](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:-43--43-)
 
 > (++) :: [a] -> [a] -> [a]
-> (++) = undefined
+> [] ++ y = y
+> (x:xs) ++ ys = x : (xs ++ ys)
 
 テストのコマンド： `runTests appendTests`
 
@@ -149,7 +150,9 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 2. [concat](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:concat)
 
 > concat :: [[a]] -> [a]
-> concat = undefined
+> concat [] = []
+> concat ([]:xs) = (concat xs)
+> concat (x:xs) = x ++ (concat xs)
 
 テストのコマンド： `runTests concatTests`
 
@@ -169,7 +172,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 3. [map](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:map)
 
 > map :: (a -> b) -> [a] -> [b]
-> map = undefined
+> map _ [] = []
+> map f (x:xs) = (f x) : (map f xs)
 
 テストのコマンド： `runTests mapTests`
 
@@ -187,7 +191,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 4. [concatMap](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:concatMap)
 
 > concatMap :: (a -> [b]) -> [a] -> [b]
-> concatMap = undefined
+> concatMap _ [] = []
+> concatMap f (x:xs) = (f x) ++ (concatMap f xs)
 
 テストのコマンド： `runTests concatMapTests`
 
@@ -206,7 +211,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 5. [filter](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:filter)
 
 > filter :: (a -> Bool) -> [a] -> [a]
-> filter = undefined
+> filter _ [] = []
+> filter f (x:xs)
+>   | f x = x : (filter f xs)
+>   | otherwise = (filter f xs)
 
 テストのコマンド： `runTests filterTests`
 
@@ -224,7 +232,9 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 6. [until](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:until)
 
 > until :: (a -> Bool) -> (a -> a) -> a -> a
-> until = undefined
+> until f g x
+>   | f x = x
+>   | otherwise = until f g (g x)
 
 テストのコマンド： `runTests untilTests`
 
@@ -238,7 +248,19 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 7. [and](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:and)
 
 > and :: [Bool] -> Bool
-> and = undefined
+>-- and = Prelude.foldr (&&) True
+
+>-- and = Prelude.and
+
+> and [] = True
+> and (False:xs) = False
+> and (_:xs) = and xs
+
+
+> -- and [] = True
+> -- and (x:xs)
+> --  | x = and xs
+> --  | otherwise = False
 
 テストのコマンド： `runTests andTests`
 
@@ -257,7 +279,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 8. [or](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:or)
 
 > or :: [Bool] -> Bool
-> or = undefined
+> or [] = False
+> or (x:xs)
+>  | x = True
+>  | otherwise = or xs
 
 テストのコマンド： `runTests orTests`
 
@@ -276,7 +301,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 9. [any](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:any)
 
 > any :: (a -> Bool) -> [a] -> Bool
-> any = undefined
+> any _ [] = False
+> any f (x:xs)
+>  | f x = True
+>  | otherwise = any f xs
 
 テストのコマンド： `runTests anyTests`
 
@@ -295,7 +323,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 10. [all](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:all)
 
 > all :: (a -> Bool) -> [a] -> Bool
-> all = undefined
+> all _ [] = True
+> all f (x:xs)
+>   | f x = all f xs
+>   | otherwise = False
 
 テストのコマンド： `runTests allTests`
 
@@ -314,7 +345,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 11. [elem](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:elem)
 
 > elem :: Eq a => a -> [a] -> Bool
-> elem = undefined
+> elem _ [] = False
+> elem a (x:xs)
+>  | a == x = True
+>  | otherwise = elem a xs
 
 テストのコマンド： `runTests elemTests`
 
@@ -333,7 +367,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 12. [notElem](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:notElem)
 
 > notElem :: Eq a => a -> [a] -> Bool
-> notElem = undefined
+> notElem _ [] = True
+> notElem a (x:xs)
+>   | a == x = False
+>   | otherwise = notElem a xs
 
 テストのコマンド： `runTests notElemTests`
 
@@ -352,7 +389,9 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 13. [zip](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:zip)
 
 > zip :: [a] -> [b] -> [(a, b)]
-> zip = undefined
+> zip _ [] = []
+> zip [] _ = []
+> zip (a:as) (b:bs) = (a,b) : (zip as bs)
 
 テストのコマンド： `runTests zipTests`
 
@@ -380,7 +419,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 14. [zip3](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:zip3)
 
 > zip3 :: [a] -> [b] -> [c] -> [(a, b, c)]
-> zip3 = undefined
+> zip3 [] _ _ = []
+> zip3 _ [] _ = []
+> zip3 _ _ [] = []
+> zip3 (a:as) (b:bs) (c:cs) = (a,b,c) : (zip3 as bs cs)
 
 テストのコマンド： `runTests zip3Tests`
 
@@ -423,7 +465,9 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 15. [zipWith](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:zipWith)
 
 > zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
-> zipWith = undefined
+> zipWith _ [] _ = []
+> zipWith _ _ [] = []
+> zipWith f (a:as) (b:bs) = (f a b) : (zipWith f as bs)
 
 テストのコマンド： `runTests zipWithTests`
 
@@ -448,7 +492,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 16. [zipWith3](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:zipWith3)
 
 > zipWith3 :: (a -> b -> c -> d) -> [a] -> [b] -> [c] -> [d]
-> zipWith3 = undefined
+> zipWith3 _ [] _ _ = []
+> zipWith3 _ _ [] _ = []
+> zipWith3 _ _ _ [] = []
+> zipWith3 f (a:as) (b:bs) (c:cs) = (f a b c) : (zipWith3 f as bs cs)
 
 テストのコマンド： `runTests zipWith3Tests`
 
@@ -488,7 +535,9 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 簡単にするために、プラットフォームにかかわらず、改行コードを`'\n'`にする。
 
 > unlines :: [String] -> String
-> unlines = undefined
+> -- unlines = undefined
+> unlines [] = ""
+> unlines (x:xs) = x ++ ('\n' : (unlines xs))
 
 テストのコマンド： `runTests unlinesTests`
 
@@ -509,7 +558,9 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 18. [unwords](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:unwords)
 
 > unwords :: [String] -> String
-> unwords = undefined
+> unwords [] = ""
+> unwords (x:[]) = x
+> unwords (x:xs) = x ++ (' ' : (unwords xs))
 
 テストのコマンド： `runTests unwordsTests`
 
@@ -533,7 +584,9 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 19. [last](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:last)
 
 > last :: [a] -> a
-> last = undefined
+> last [] = error "error"
+> last [x] = x
+> last (x:xs) = last xs
 
 テストのコマンド： `runTests lastTests`
 
@@ -549,7 +602,9 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 20. [init](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:init)
 
 > init :: [a] -> [a]
-> init = undefined
+> init [] = error "error"
+> init [x] = []
+> init (x:xs) = x : (init xs)
 
 テストのコマンド： `runTests initTests`
 
@@ -565,7 +620,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 21. [take](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:take)
 
 > take :: Int -> [a] -> [a]
-> take = undefined
+> take _ [] = []
+> take n (x:xs)
+>   | n <= 0 = []
+>   | otherwise = x : (take (n-1) xs)
 
 テストのコマンド： `runTests takeTests`
 
@@ -583,7 +641,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 22. [drop](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:drop)
 
 > drop :: Int -> [a] -> [a]
-> drop = undefined
+> drop _ [] = []
+> drop n all@(x:xs)
+>   | n <= 0 = all
+>   | otherwise = drop (n-1) xs
 
 テストのコマンド： `runTests dropTests`
 
@@ -601,7 +662,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 23. [takeWhile](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:takeWhile)
 
 > takeWhile :: (a -> Bool) -> [a] -> [a]
-> takeWhile = undefined
+> takeWhile _ [] = []
+> takeWhile f (x:xs)
+>   | not (f x) = []
+>   | otherwise = x : (takeWhile f xs)
 
 テストのコマンド： `runTests takeWhileTests`
 
@@ -621,7 +685,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 24. [dropWhile](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:dropWhile)
 
 > dropWhile :: (a -> Bool) -> [a] -> [a]
-> dropWhile = undefined
+> dropWhile _ [] = []
+> dropWhile f all@(x:xs)
+>   | not (f x) = all
+>   | otherwise = dropWhile f xs
 
 テストのコマンド： `runTests dropWhileTests`
 
@@ -644,7 +711,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 25. [(!!)](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:-33--33-)
 
 > (!!) :: [a] -> Int -> a
-> (!!) = undefined
+> (!!) _ [] = error "error"
+> (!!) (x:xs) n
+>   | n<0  = error "error"
+>   | n==0 = x
 
 テストのコマンド： `runTests indexTests`
 
