@@ -82,8 +82,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   --, dropTests
 >   --, takeWhileTests
 >   --, dropWhileTests
->   , indexTests
->   --, sumTests
+>   --, indexTests
+>   , sumTests
 >   --, productTests
 >   --, maximumTests
 >   --, minimumTests
@@ -711,10 +711,11 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 25. [(!!)](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:-33--33-)
 
 > (!!) :: [a] -> Int -> a
-> (!!) _ [] = error "error"
+> (!!) [] _ = error "error"
 > (!!) (x:xs) n
 >   | n<0  = error "error"
 >   | n==0 = x
+>   | otherwise = (!!) xs (n-1)
 
 テストのコマンド： `runTests indexTests`
 
@@ -738,7 +739,9 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 26. [sum](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:sum)
 
 > sum :: Num a => [a] -> a
-> sum = undefined
+> sum a = sumA a 0
+>   where sumA [] n = n
+>         sumA (x:xs) n = sumA xs (n+x)
 
 テストのコマンド： `runTests sumTests`
 
@@ -749,9 +752,9 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   , assertEqual "sum [1,-1,2,-2]" 0 (sum [1,-1,2,-2])
 >   , assertEqual "sum []" 0 (sum [])
 >   -- 無限／大きなテスト - 末尾再帰が必要です
->   --, assertEqual "sum (concatMap (\\n -> [n,-n]) [1..large])"
->   --              0
->   --              (sum (Prelude.concatMap (\n -> [n,-n]) [1..large]))
+>     , assertEqual "sum (concatMap (\\n -> [n,-n]) [1..large])"
+>                   0
+>                   (sum (Prelude.concatMap (\n -> [n,-n]) [1..(2^24)]))
 >   ]
 
 27. [product](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:product)
