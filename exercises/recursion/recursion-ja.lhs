@@ -83,8 +83,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   --, takeWhileTests
 >   --, dropWhileTests
 >   --, indexTests
->   , sumTests
->   --, productTests
+>   --, sumTests
+>   , productTests
 >   --, maximumTests
 >   --, minimumTests
 >   --, lengthTests
@@ -739,9 +739,11 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 26. [sum](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:sum)
 
 > sum :: Num a => [a] -> a
-> sum a = sumA a 0
->   where sumA [] n = n
->         sumA (x:xs) n = sumA xs (n+x)
+> sum = sum' 0
+>   where
+>     sum' :: (Num a) => a -> [a] -> a
+>     sum' n [] = n
+>     sum' n (x:xs) = let s = n+x in s `seq` sum' s xs
 
 テストのコマンド： `runTests sumTests`
 
