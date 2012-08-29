@@ -741,7 +741,7 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 > sum :: Num a => [a] -> a
 > sum = sum' 0
 >   where
->     sum' :: (Num a) => a -> [a] -> a
+>     sum' :: Num a => a -> [a] -> a
 >     sum' n [] = n
 >     sum' n (x:xs) = let s = n+x in s `seq` sum' s xs
 
@@ -762,7 +762,11 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 27. [product](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:product)
 
 > product :: Num a => [a] -> a
-> product = undefined
+> product = product' 1
+>   where
+>     product' :: Num a => a -> [a] -> a
+>     product' n [] = n
+>     product' n (x:xs) = let s = n*x in s `seq` product' s xs
 
 テストのコマンド： `runTests productTests`
 
@@ -776,8 +780,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   -- 無限／大きなテスト - 末尾再帰が必要です
 >   --, assertEqual
 >   --    "product (concatMap (\\n -> let n2 = 2*n in [n2,1/n2]) [1..large])"
->   --    1.0
->   --    (product (concatMap (\n -> let n2 = 2*n in [n2,1/n2]) [1..large]))
+>   --    1
+>   --    (product (concatMap (\n -> let n2 = 2*n in [n2,1/n2]) [1..(toRational large)]))
 >   ]
 
 28. [maximum](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:maximum)
