@@ -59,7 +59,7 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 > tests :: [[Test]]
 > tests = [
 >     appendTests
->   , concatTests
+>   --, concatTests
 >   --, mapTests
 >   --, concatMapTests
 >   --, filterTests
@@ -84,12 +84,12 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   --, dropWhileTests
 >   --, indexTests
 >   --, sumTests
->   , productTests
+>   --, productTests
 >   --, maximumTests
 >   --, minimumTests
 >   --, lengthTests
 >   --, reverseTests
->   --, linesTests
+>   , linesTests
 >   --, wordsTests
 >   --, splitAtTests
 >   --, spanTests
@@ -787,7 +787,11 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 28. [maximum](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:maximum)
 
 > maximum :: Ord a => [a] -> a
-> maximum = undefined
+> maximum [] = error "maximum error"
+> maximum (x:xs) = maximum' x xs
+>   where
+>     maximum' a [] = a
+>     maximum' a (x:xs) = let m= if (a>x) then a else x in m `seq` maximum' m xs
 
 テストのコマンド： `runTests maximumTests`
 
@@ -803,7 +807,11 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 29. [minimum](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:minimum)
 
 > minimum :: Ord a => [a] -> a
-> minimum = undefined
+> minimum [] = error "minimum error"
+> minimum (x:xs) = minimum' x xs
+>   where
+>     minimum' a [] = a
+>     minimum' a (x:xs) = let m = if a<x then a else x in m `seq` minimum' m xs
 
 テストのコマンド： `runTests minimumTests`
 
@@ -819,7 +827,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 30. [length](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:length)
 
 > length :: [a] -> Int
-> length = undefined
+> length = length' 0
+>   where
+>     length' a [] = a
+>     length' a (x:xs) = let b = a+1 in b `seq` length' b xs
 
 テストのコマンド： `runTests lengthTests`
 
@@ -829,13 +840,16 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   [ assertEqual "length [1,2,3]" 3 (length [1,2,3])
 >   , assertEqual "length []" 0 (length [])
 >   -- 無限／大きなテスト - 末尾再帰が必要です
->   --, assertEqual "length [1..large]" large (length [1..large])
+>   , assertEqual "length [1..large]" large (length [1..large])
 >   ]
 
 31. [reverse](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:reverse)
 
 > reverse :: [a] -> [a]
-> reverse = undefined
+> reverse = reverse' []
+>   where
+>     reverse' a [] = a
+>     reverse' a (x:xs) = reverse' (x:a) xs
 
 テストのコマンド： `runTests reverseTests`
 
@@ -855,7 +869,12 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 簡単にするために、プラットフォームにかかわらず、改行コードを`'\n'`にする。
 
 > lines :: String -> [String]
-> lines = undefined
+> lines = lines' [] ""
+>   where
+>     lines' a "" "" = a
+>     lines' a b "" = a ++ b
+>     lines' a b ('\n':xs) = lines' (a++b) "" xs
+>     lines' a b (x:xs) = lines' a (b++(x:[])) xs
 
 テストのコマンド： `runTests linesTests`
 
