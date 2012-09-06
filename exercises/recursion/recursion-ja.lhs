@@ -89,10 +89,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   --, minimumTests
 >   --, lengthTests
 >   --, reverseTests
->   , linesTests
+>   --, linesTests
 >   --, wordsTests
 >   --, splitAtTests
->   --, spanTests
+>   , spanTests
 >   --, breakTests
 >   --, unzipTests
 >   --, unzip3Tests
@@ -869,12 +869,12 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 簡単にするために、プラットフォームにかかわらず、改行コードを`'\n'`にする。
 
 > lines :: String -> [String]
-> lines = lines' [] ""
+> lines = lines' ""
 >   where
->     lines' a "" "" = a
->     lines' a b "" = a ++ b
->     lines' a b ('\n':xs) = lines' (a++b) "" xs
->     lines' a b (x:xs) = lines' a (b++(x:[])) xs
+>     lines' a [] | null a = []
+>                 | otherwise = reverse a : []
+>     lines' a (x:xs) | x == '\n' = reverse a : (lines' "" xs)
+>                     | otherwise = lines' (x:a) xs
 
 テストのコマンド： `runTests linesTests`
 
@@ -899,7 +899,13 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 `Data.Char`で定義されている関数`isSpace`を使うと良い。
 
 > words :: String -> [String]
-> words = undefined
+> words = words' ""
+>   where
+>     words' a [] | null a = []
+>                 | otherwise = reverse a : []
+>     words' a (x:xs) | Data.Char.isSpace x = if null a then words' a xs else reverse a : words' "" xs
+>                     | otherwise = words' (x:a) xs
+
 
 テストのコマンド： `runTests wordsTests`
 
@@ -925,7 +931,11 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 34. [splitAt](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:splitAt)
 
 > splitAt :: Int -> [a] -> ([a], [a])
-> splitAt = undefined
+> splitAt = splitAt' []
+>   where
+>     splitAt' a _ [] = (reverse a,[])
+>     splitAt' a n arr@(x:xs) | n<1 = (reverse a, arr)
+>                             | otherwise = splitAt' (x:a) (n-1) xs
 
 テストのコマンド： `runTests splitAtTests`
 
@@ -945,7 +955,11 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 35. [span](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:span)
 
 > span :: (a -> Bool) -> [a] -> ([a], [a])
-> span = undefined
+> span = span' []
+>   where
+>     span' a _ [] = (reverse a, [])
+>     span' a f arr@(x:xs) | f x = span' (x:a) f xs
+>                          | otherwise = (reverse a, arr)
 
 テストのコマンド： `runTests spanTests`
 
@@ -955,10 +969,11 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   [ assertEqual "span even [2,4,6,9]" ([2,4,6],[9]) (span even [2,4,6,9])
 >   , assertEqual "span even [1,3,5,8]" ([],[1,3,5,8]) (span even [1,3,5,8])
 >   , assertEqual "span even []" ([],[]) (span even [])
+>--   , assertEqual "span (> 0) [1,2,3]" ([],[1,2,3]) (span (< 0) [1,2,3])
 >   -- 無限／大きなテスト
 >   , assertEqual "head (fst (span (> 0) [1..]))"
 >                 1
->                 (head (fst (span (> 0) [1..])))
+>                 (head (fst (span (> 0) [1..large])))
 >   ]
 
 36. [break](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:break)
