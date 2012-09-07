@@ -92,8 +92,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   --, linesTests
 >   --, wordsTests
 >   --, splitAtTests
->   , spanTests
->   --, breakTests
+>   --, spanTests
+>   , breakTests
 >   --, unzipTests
 >   --, unzip3Tests
 >   --, foldlTests
@@ -955,11 +955,9 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 35. [span](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:span)
 
 > span :: (a -> Bool) -> [a] -> ([a], [a])
-> span = span' []
->   where
->     span' a _ [] = (reverse a, [])
->     span' a f arr@(x:xs) | f x = span' (x:a) f xs
->                          | otherwise = (reverse a, arr)
+> span _ [] = ([], [])
+> span f arr@(x:xs) | f x = let (a,b) = span f xs in (x:a,b)
+>                   | otherwise = ([], arr)
 
 テストのコマンド： `runTests spanTests`
 
@@ -973,13 +971,16 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   -- 無限／大きなテスト
 >   , assertEqual "head (fst (span (> 0) [1..]))"
 >                 1
->                 (head (fst (span (> 0) [1..large])))
+>                 (head (fst (span (> 0) [1..])))
 >   ]
 
 36. [break](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:break)
 
 > break :: (a -> Bool) -> [a] -> ([a], [a])
-> break = undefined
+> break _ [] = ([],[])
+> break f arr@(x:xs) | f x = ([], arr)
+>                    | otherwise = let (a,b) = break f xs in (x:a,b)
+
 
 テストのコマンド： `runTests breakTests`
 
