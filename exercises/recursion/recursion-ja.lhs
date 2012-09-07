@@ -96,10 +96,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   --, breakTests
 >   --, unzipTests
 >   --, unzip3Tests
->   , foldlTests
+>   --, foldlTests
 >   --, foldrTests
 >   --, scanlTests
->   --, scanrTests
+>   , scanrTests ----
 >   ]
 
 `tests`のテストを実行するには`main`を使う。
@@ -1044,7 +1044,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 39. [foldl](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:foldl)
 
 > foldl :: (a -> b -> a) -> a -> [b] -> a
-> foldl _ _ [] = undefined
+> foldl _ acc [] = acc
+> foldl f acc (x:xs) = foldl f (f acc x) xs
 
 テストのコマンド： `runTests foldlTests`
 
@@ -1059,7 +1060,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 40. [foldr](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:foldr)
 
 > foldr :: (a -> b -> b) -> b -> [a] -> b
-> foldr = undefined
+> foldr _ acc [] = acc
+> foldr f acc (x:xs) = f x (foldr f acc xs)
 
 テストのコマンド： `runTests foldrTests`
 
@@ -1074,7 +1076,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 41. [scanl](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:scanl)
 
 > scanl :: (a -> b -> a) -> a -> [b] -> [a]
-> scanl = undefined
+> scanl _ acc [] = [acc]
+> scanl f acc (x:xs) = acc : (scanl f (f acc x) xs)
 
 テストのコマンド： `runTests scanlTests`
 
@@ -1091,7 +1094,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 42. [scanr](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:scanr)
 
 > scanr :: (a -> b -> b) -> b -> [a] -> [b]
-> scanr = undefined
+> scanr _ acc [] = [acc]
+> scanr f acc (x:xs) = let a = scanr f acc xs in f x (head a) : a
 
 テストのコマンド： `runTests scanrTests`
 
