@@ -93,10 +93,10 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 >   --, wordsTests
 >   --, splitAtTests
 >   --, spanTests
->   , breakTests
+>   --, breakTests
 >   --, unzipTests
 >   --, unzip3Tests
->   --, foldlTests
+>   , foldlTests
 >   --, foldrTests
 >   --, scanlTests
 >   --, scanrTests
@@ -999,7 +999,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 37. [unzip](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:unzip)
 
 > unzip :: [(a, b)] -> ([a], [b])
-> unzip = undefined
+> unzip [] = ([], [])
+> unzip ((x,y):xs) = let (a,b) = unzip xs in (x:a,y:b)
 
 テストのコマンド： `runTests unzipTests`
 
@@ -1019,7 +1020,8 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 38. [unzip3](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:unzip3)
 
 > unzip3 :: [(a, b, c)] -> ([a], [b], [c])
-> unzip3 = undefined
+> unzip3 [] = ([],[],[])
+> unzip3 ((x,y,z):xs) = let (a,b,c) = unzip3 xs in (x:a,y:b,z:c)
 
 テストのコマンド： `runTests unzip3Tests`
 
@@ -1042,7 +1044,7 @@ HUnitのパッケージを使って、テストも付いている。`cabal insta
 39. [foldl](http://haskell.org/ghc/docs/7.0-latest/html/libraries/base-4.3.1.0/Prelude.html#v:foldl)
 
 > foldl :: (a -> b -> a) -> a -> [b] -> a
-> foldl = undefined
+> foldl _ _ [] = undefined
 
 テストのコマンド： `runTests foldlTests`
 
